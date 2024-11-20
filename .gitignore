@@ -1,6 +1,0 @@
-venv/
-*.pyc
-datagouv-communes.geojson
-*.csv
-map.html
-*.xlsx
