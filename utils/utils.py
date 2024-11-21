@@ -167,3 +167,22 @@ def nettoyage(zone):
     df['trimestre'] = pd.to_numeric(df['trimestre'], errors='coerce')  # Convertir en entier, NaN pour les erreurs
 
     return df
+
+def process_data(df_departement, df_region, df_commune):   
+
+    df_departement["proportion_de_logements_raccordables"]= df_departement["nombre_de_logements_raccordables"]/df_departement["meilleure_estimation_des_locaux_t2_2022"]
+    df_departement["classe"]= [str(round_decimals_down(element, 1))+" - "+str(round_decimals_up(element, 1)) for element in df_departement["proportion_de_logements_raccordables"]]
+    df_departement= df_departement.sort_values(by=['classe'])
+    tri_an= ['T4 2017', 'T1 2018', 'T2 2018', 'T3 2018', 'T4 2018', 'T1 2019', 'T2 2019', 'T3 2019', 'T4 2019', 'T1 2020', 'T2 2020', 'T3 2020', 'T4 2020', 'T1 2021', 'T2 2021', 'T3 2021', 'T4 2021', 'T1 2022', 'T2 2022']
+    key= [i for i in range(len(tri_an))]
+    d= dict(zip(key, tri_an)) # Sert au slider
+
+    periode= ["T"+ str(df_region["trimestre"].iloc[index])+" "+str(df_region["annee"].iloc[index]) for index in df_region.index]# On récupère la période avec de l'algorithmique
+    df_region["periode"]= periode
+    df_region["proportion_de_logements_raccordables"]= df_region["nombre_de_logements_raccordables"]/df_region["meilleure_estimation_des_locaux_t2_2022"]
+
+    df_commune= df_commune[df_commune["trimestre"]==2]
+    df_commune= df_commune[df_commune["annee"]==2022] # Pour notre carte, on fixe au 2ème trimestre de 2022
+    df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_t2_2022"]
+
+    return df_departement, df_region, df_commune, d
