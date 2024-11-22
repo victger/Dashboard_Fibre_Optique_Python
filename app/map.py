@@ -2,7 +2,7 @@ import folium
 
 def create_map():
     # Création de la carte choroplèthe
-    france_geo = "datagouv-communes.geojson"
+    france_geo = "data/datagouv-communes.geojson"
     df_commune = pd.read_csv("data/Communes.csv")  # Remplacer par le bon chemin de fichier
     m = folium.Map(location=[46.7555, 2.4252], zoom_start=6)
 
@@ -19,4 +19,4 @@ def create_map():
     ).add_to(m)
 
     folium.LayerControl().add_to(m)
-    m.save('map.html')
+    m.save('data/map.html')

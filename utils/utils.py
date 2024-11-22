@@ -2,6 +2,7 @@ import pandas as pd
 import unidecode
 from pathlib import Path
 import math
+import os
 import sys
 
 # Diverses fonctions utiles
@@ -45,9 +46,11 @@ def lecture_csv(zone):
         df : dataframe lue
     """
 
-    read_file = pd.read_excel(r'2022t2-obs-hd-thd-deploiement-vf.xlsx', sheet_name=zone)
-    read_file.to_csv(zone+'.csv', index= False, header=True)
-    df= pd.read_csv(zone+'.csv', sep=",", skiprows=lambda x: x in range(0,4), low_memory=False)
+    DATA_PATH= "data/"
+    FILE_PATH= os.path.join(DATA_PATH,"2022t2-obs-hd-thd-deploiement-vf.xlsx")
+    read_file = pd.read_excel(FILE_PATH, sheet_name=zone)
+    read_file.to_csv(os.path.join(DATA_PATH,zone+'.csv'), index= False, header=True)
+    df= pd.read_csv(os.path.join(DATA_PATH,zone)+'.csv', sep=",", skiprows=lambda x: x in range(0,4), low_memory=False)
 
     return df
 
