@@ -1,10 +1,10 @@
 import folium
 import pandas as pd
+import os
 
 def create_map(df_commune):
-
     # Création de la carte choroplèthe
-    france_geo = "data/datagouv-communes.geojson"
+    france_geo = "data/communes_data/datagouv_communes.geojson"
     m = folium.Map(location=[46.7555, 2.4252], zoom_start=6)
 
     folium.Choropleth(
@@ -20,4 +20,9 @@ def create_map(df_commune):
     ).add_to(m)
 
     folium.LayerControl().add_to(m)
-    m.save('data/map.html')
+
+    map_directory= "data/map"
+    if not os.path.exists(map_directory):
+        os.makedirs(map_directory)
+
+    m.save(os.path.join(map_directory,'map.html'))

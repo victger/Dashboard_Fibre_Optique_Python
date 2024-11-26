@@ -17,6 +17,6 @@ def create_layout(df_region, df_commune,d):
         ),
         dcc.Graph(id='line-chart', figure=fig2, style={'marginTop': '50px'}),
         html.H3(children="Carte répertoriant la proportion d'accès à la fibre au 2ème trimestre de 2022 en France métropolitaine", style={'textAlign': 'center', 'marginTop': '50px'}),
-        html.Iframe(id='map', srcDoc=open('data/map.html', 'r').read(), width='100%', height='1000')
+        html.Iframe(id='map', srcDoc=open('data/map/map.html', 'r').read(), width='100%', height='1000')
     ])
     return layout

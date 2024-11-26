@@ -40,3 +40,20 @@ def download_file():
             file.write(response.content)
     else:
         print(f"Échec du téléchargement du fichier Excel de déploiement. Statut: {response.status_code}")
+
+    communes_data_url= "https://perso.esiee.fr/~courivad/python_advanced/_downloads/8578d763bdb7d7d0d1a7aaeb2e3b4814/datagouv-communes.geojson"
+
+    DIRECTORY = "data/communes_data"
+
+    if not os.path.exists(DIRECTORY):
+        os.makedirs(DIRECTORY)
+
+    file_path = os.path.join(DIRECTORY, 'datagouv_communes.geojson')
+
+    response = requests.get(communes_data_url)
+
+    if response.status_code == 200:
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+    else:
+        print(f"Échec du téléchargement du fichier GeoJSON des communes. Statut: {response.status_code}")

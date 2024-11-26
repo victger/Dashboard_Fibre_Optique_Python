@@ -1,9 +1,10 @@
 from dash import Dash
-from utils.utils import process_data, nettoyage
 from utils.download_file import download_file
 from app.app import launch_app
 
 download_file()
+
+from utils.utils import process_data, nettoyage
 
 # Nettoyage des données
 df_region = nettoyage('Régions')
