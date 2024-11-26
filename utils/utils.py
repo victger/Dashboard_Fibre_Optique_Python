@@ -3,9 +3,37 @@ import unidecode
 from pathlib import Path
 import math
 import os
+import re
 import sys
 
-# Diverses fonctions utiles
+DATA_PATH= os.path.join("data","deploiement_file")
+FILE= os.listdir(DATA_PATH)[0]
+FILE_PATH= os.path.join(DATA_PATH,FILE)
+
+LAST_YEAR= FILE[:4]
+LAST_QUARTER= FILE[4:6]
+LAST_PERIOD= LAST_QUARTER+' '+LAST_YEAR
+
+def generate_periods():
+    periods = ['T4 2017']
+    
+    current_year = 2017
+    current_quarter = 4
+    
+    last_quarter, last_year = LAST_PERIOD.split()
+    last_quarter = int(last_quarter[1])
+    last_year = int(last_year)
+    
+    while (current_year < last_year) or (current_year == last_year and current_quarter < last_quarter):
+        current_quarter += 1
+        
+        if current_quarter > 4:
+            current_quarter = 1
+            current_year += 1
+        
+        periods.append(f'T{current_quarter} {current_year}')
+    
+    return periods
 
 def round_decimals_down(number:float, decimals:int=2):
     """
@@ -46,8 +74,6 @@ def lecture_csv(zone):
         df : dataframe lue
     """
 
-    DATA_PATH= "data/"
-    FILE_PATH= os.path.join(DATA_PATH,"2022t2-obs-hd-thd-deploiement-vf.xlsx")
     read_file = pd.read_excel(FILE_PATH, sheet_name=zone)
     read_file.to_csv(os.path.join(DATA_PATH,zone+'.csv'), index= False, header=True)
     df= pd.read_csv(os.path.join(DATA_PATH,zone)+'.csv', sep=",", skiprows=lambda x: x in range(0,4), low_memory=False)
@@ -65,10 +91,10 @@ def normalise(df):
         df : dataframe dont les noms de colonne sont normalisés
     """
 
-    old_columns= df.columns.values
-    new_columns = [unidecode.unidecode(i.strip().replace(' ', '_').lower()) for i in old_columns]
-    d= dict(zip(old_columns, new_columns))
-    df= df.rename(columns= d)
+    old_columns = df.columns.values
+    new_columns = [unidecode.unidecode(re.sub(r'\s+', ' ', i).strip().replace(' ', '_').lower()) for i in old_columns]
+    d = dict(zip(old_columns, new_columns))
+    df = df.rename(columns=d)
 
     return df
 
@@ -135,19 +161,18 @@ def change_col_ordre(df, tab):
 
 def nettoyage(zone):
     """
-    Nettoie une dataframe en appelant fonctions précédemment créées.
+    Nettoie une dataframe en appelant les fonctions précédemment créées.
 
     Args :
         zone: Nom (sans l'extension) du fichier csv à nettoyer
 
     """
-
     df= lecture_csv(zone)
     df= normalise(df)
     
-    tab_col= ['nombre_locaux_ipe_t2_2022_(somme_tous_oi)', 'code_region', 'logements', 'etablissements'] # Colonnes inutiles
-    vars= ['nom_'+unidecode.unidecode(zone).lower()[:-1], 'meilleure_estimation_des_locaux_t2_2022'] #Colonnes faisant pivot à la transformation en wide to long
-    col_ordre= ["code_"+unidecode.unidecode(zone).lower()[:-1], "nom_"+unidecode.unidecode(zone).lower()[:-1], "meilleure_estimation_des_locaux_t2_2022", "annee", "trimestre", "nombre_de_logements_raccordables"] #Ordre final des colonnes de la df
+    tab_col= ['nombre_locaux_ipe_'+LAST_QUARTER.lower()+'_'+LAST_YEAR+'_(somme_tous_oi)', 'code_region', 'logements', 'etablissements'] # Colonnes inutiles
+    vars= ['nom_'+unidecode.unidecode(zone).lower()[:-1], 'meilleure_estimation_des_locaux_'+LAST_QUARTER.lower()+'_'+LAST_YEAR] #Colonnes faisant pivot à la transformation en wide to long
+    col_ordre= ["code_"+unidecode.unidecode(zone).lower()[:-1], "nom_"+unidecode.unidecode(zone).lower()[:-1], "meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+"_"+LAST_YEAR, "annee", "trimestre", "nombre_de_logements_raccordables"] #Ordre final des colonnes de la df
 
     if zone=='Régions':
         tab_lig= [i for i in range(8)] # On supprimes les outre-mers
@@ -157,7 +182,7 @@ def nettoyage(zone):
         vars+= ['code_departement']
 
     elif zone=='Communes':
-        tab_col+= ['code_departement', 'siren_epci', 'epci_amii', 'source_retenue_t2_2022', 'engagements_l._33-13_et_amel', 'intentions_privees_hors_engagement_l._33-13', 'oi_t2_2022', 'commune_rurale', 'commune_de_montagne', 'zones_tres_denses']
+        tab_col+= ['code_departement', 'siren_epci_'+LAST_YEAR, 'epci_amii', 'source_retenue_'+LAST_QUARTER.lower()+'_'+LAST_YEAR, 'engagements_l._33-13_(amii_et_amel)', 'intentions_privees_hors_engagement_l._33-13', 'oi_'+LAST_QUARTER.lower()+'_'+LAST_YEAR, 'commune_rurale', 'commune_de_montagne', 'zones_tres_denses']
         tab_lig= [index for index in df.index if str(df.iloc[index]['code_commune']).startswith("97")] # On supprime les outre-mers
         vars+= ['code_commune']
 
@@ -173,19 +198,18 @@ def nettoyage(zone):
 
 def process_data(df_departement, df_region, df_commune):   
 
-    df_departement["proportion_de_logements_raccordables"]= df_departement["nombre_de_logements_raccordables"]/df_departement["meilleure_estimation_des_locaux_t2_2022"]
+    df_departement["proportion_de_logements_raccordables"]= df_departement["nombre_de_logements_raccordables"]/df_departement["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
     df_departement["classe"]= [str(round_decimals_down(element, 1))+" - "+str(round_decimals_up(element, 1)) for element in df_departement["proportion_de_logements_raccordables"]]
     df_departement= df_departement.sort_values(by=['classe'])
-    tri_an= ['T4 2017', 'T1 2018', 'T2 2018', 'T3 2018', 'T4 2018', 'T1 2019', 'T2 2019', 'T3 2019', 'T4 2019', 'T1 2020', 'T2 2020', 'T3 2020', 'T4 2020', 'T1 2021', 'T2 2021', 'T3 2021', 'T4 2021', 'T1 2022', 'T2 2022']
+    tri_an= generate_periods()
     key= [i for i in range(len(tri_an))]
     d= dict(zip(key, tri_an)) # Sert au slider
 
     periode= ["T"+ str(df_region["trimestre"].iloc[index])+" "+str(df_region["annee"].iloc[index]) for index in df_region.index]# On récupère la période avec de l'algorithmique
     df_region["periode"]= periode
-    df_region["proportion_de_logements_raccordables"]= df_region["nombre_de_logements_raccordables"]/df_region["meilleure_estimation_des_locaux_t2_2022"]
+    df_region["proportion_de_logements_raccordables"]= df_region["nombre_de_logements_raccordables"]/df_region["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
 
-    df_commune= df_commune[df_commune["trimestre"]==2]
-    df_commune= df_commune[df_commune["annee"]==2022] # Pour notre carte, on fixe au 2ème trimestre de 2022
-    df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_t2_2022"]
-
+    df_commune= df_commune[df_commune["trimestre"]==int(LAST_QUARTER[-1])]
+    df_commune= df_commune[df_commune["annee"]==int(LAST_YEAR)]
+    df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
     return df_departement, df_region, df_commune, d

@@ -1,9 +1,10 @@
 import folium
+import pandas as pd
 
-def create_map():
+def create_map(df_commune):
+
     # Création de la carte choroplèthe
     france_geo = "data/datagouv-communes.geojson"
-    df_commune = pd.read_csv("data/Communes.csv")  # Remplacer par le bon chemin de fichier
     m = folium.Map(location=[46.7555, 2.4252], zoom_start=6)
 
     folium.Choropleth(
