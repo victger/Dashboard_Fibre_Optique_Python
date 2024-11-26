@@ -65,18 +65,16 @@ def round_decimals_up(number:float, decimals:int=2):
 
 def lecture_csv(zone):
     """
-    Lit un fichier csv extrait du fichier Excel original
+    Lit un fichier Excel original et retourne une DataFrame
 
     Args :
-        zone: Nom (sans extension) du fichier csv concerné
+        zone: Nom de la feuille dans le fichier Excel concerné
 
     Return :
-        df : dataframe lue
+        df : DataFrame lue
     """
-
-    read_file = pd.read_excel(FILE_PATH, sheet_name=zone)
-    read_file.to_csv(os.path.join(DATA_PATH,zone+'.csv'), index= False, header=True)
-    df= pd.read_csv(os.path.join(DATA_PATH,zone)+'.csv', sep=",", skiprows=lambda x: x in range(0,4), low_memory=False)
+    # Lire directement le fichier Excel sans sauvegarder en CSV
+    df = pd.read_excel(FILE_PATH, sheet_name=zone, skiprows=4)
 
     return df
 
@@ -212,4 +210,5 @@ def process_data(df_departement, df_region, df_commune):
     df_commune= df_commune[df_commune["trimestre"]==int(LAST_QUARTER[-1])]
     df_commune= df_commune[df_commune["annee"]==int(LAST_YEAR)]
     df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
+    
     return df_departement, df_region, df_commune, d
