@@ -81,26 +81,6 @@ def normalise(df):
 
     return df
 
-def sup_col_ou_l(df, tab, paxis):
-    """
-    Supprime les colonnes ou les lignes d'une dataframe
-
-    Args :
-        df : dataframe concernée
-        tab: tableau du nom des colonnes à supprimer
-        paxis: 0 pour supprimer des lignes, 1 pour supprimer des colonnes
-
-    Return :
-        df : dataframe avec les colonnes ou lignes supprimées
-    """
-
-    if paxis==1:
-        df= df.drop(tab, axis=1) #Colonne
-    else:
-        df= df.drop(tab) #Ligne
-    
-    return df
-
 def to_long(df, vars):
     """
     Transorme une dataframe au format large en format long. On sépare les colonnes concernant les périodes
@@ -153,8 +133,8 @@ def nettoyage(zone):
         tab_lig= [index for index in df.index if str(df.iloc[index]['code_commune']).startswith("97")] # On supprime les outre-mers
         vars+= ['code_commune']
 
-    df= sup_col_ou_l(df, tab_col, 1)
-    df= sup_col_ou_l(df, tab_lig, 0)
+    df= df.drop(tab_col, axis= 1)
+    df= df.drop(tab_lig, axis= 0)
     df= to_long(df, vars)
     df=df.reindex(columns=col_ordre)
 
