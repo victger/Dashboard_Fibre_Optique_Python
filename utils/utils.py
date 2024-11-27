@@ -63,21 +63,6 @@ def round_decimals_up(number:float, decimals:int=2):
     factor = 10 ** decimals
     return math.ceil(number * factor) / factor
 
-def lecture_csv(zone):
-    """
-    Lit un fichier Excel original et retourne une DataFrame
-
-    Args :
-        zone: Nom de la feuille dans le fichier Excel concerné
-
-    Return :
-        df : DataFrame lue
-    """
-    # Lire directement le fichier Excel sans sauvegarder en CSV
-    df = pd.read_excel(FILE_PATH, sheet_name=zone, skiprows=4)
-
-    return df
-
 def normalise(df):
     """
     Normalise les noms des colonnes de la dataframe
@@ -141,22 +126,6 @@ def to_long(df, vars):
 
     return df
 
-def change_col_ordre(df, tab):
-    """
-    Change l'ordre des colonnes d'une dataframe
-
-    Args :
-        df : dataframe concernée
-        tab: tableau contenant l'ordre des colonnes
-
-    Return :
-        df : dataframe dont les colonnes ont été ordonnées
-    """
-
-    df=df.reindex(columns=tab)
-
-    return df
-
 def nettoyage(zone):
     """
     Nettoie une dataframe en appelant les fonctions précédemment créées.
@@ -165,7 +134,7 @@ def nettoyage(zone):
         zone: Nom (sans l'extension) du fichier csv à nettoyer
 
     """
-    df= lecture_csv(zone)
+    df = pd.read_excel(FILE_PATH, sheet_name=zone, skiprows=4)
     df= normalise(df)
     
     tab_col= ['nombre_locaux_ipe_'+LAST_QUARTER.lower()+'_'+LAST_YEAR+'_(somme_tous_oi)', 'code_region', 'logements', 'etablissements'] # Colonnes inutiles
@@ -173,7 +142,7 @@ def nettoyage(zone):
     col_ordre= ["code_"+unidecode.unidecode(zone).lower()[:-1], "nom_"+unidecode.unidecode(zone).lower()[:-1], "meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+"_"+LAST_YEAR, "annee", "trimestre", "nombre_de_logements_raccordables"] #Ordre final des colonnes de la df
 
     if zone=='Régions':
-        tab_lig= [i for i in range(8)] # On supprimes les outre-mers
+        tab_lig= [i for i in range(8)]
 
     elif zone=='Départements':
         tab_lig= [index for index in df.index if str(df.iloc[index]['code_departement']).startswith("97")] # On supprime les outre-mers
@@ -187,14 +156,14 @@ def nettoyage(zone):
     df= sup_col_ou_l(df, tab_col, 1)
     df= sup_col_ou_l(df, tab_lig, 0)
     df= to_long(df, vars)
-    df= change_col_ordre(df, col_ordre)
+    df=df.reindex(columns=col_ordre)
 
-    df['annee'] = pd.to_numeric(df['annee'], errors='coerce')  # Convertir en entier, NaN pour les erreurs
-    df['trimestre'] = pd.to_numeric(df['trimestre'], errors='coerce')  # Convertir en entier, NaN pour les erreurs
+    df['annee'] = pd.to_numeric(df['annee'], errors='coerce')
+    df['trimestre'] = pd.to_numeric(df['trimestre'], errors='coerce')
 
     return df
 
-def process_data():   
+def process_data():
 
     df_region = nettoyage('Régions')
     df_departement = nettoyage('Départements')
