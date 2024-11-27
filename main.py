@@ -4,15 +4,10 @@ from app.app import launch_app
 
 download_file()
 
-from utils.utils import process_data, nettoyage
-
-# Nettoyage des données
-df_region = nettoyage('Régions')
-df_departement = nettoyage('Départements')
-df_commune = nettoyage('Communes')
+from utils.utils import process_data
 
 # Traitement des données (fonction définie dans utils)
-df_departement, df_region, df_commune, d= process_data(df_departement, df_region, df_commune)
+df_departement, df_region, df_commune, d= process_data()
 
 # Lancement de l'application avec les DataFrames
 launch_app(df_region, df_departement, df_commune, d)

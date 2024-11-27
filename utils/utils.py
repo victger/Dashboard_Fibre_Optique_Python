@@ -194,7 +194,11 @@ def nettoyage(zone):
 
     return df
 
-def process_data(df_departement, df_region, df_commune):   
+def process_data():   
+
+    df_region = nettoyage('Régions')
+    df_departement = nettoyage('Départements')
+    df_commune = nettoyage('Communes')
 
     df_departement["proportion_de_logements_raccordables"]= df_departement["nombre_de_logements_raccordables"]/df_departement["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
     df_departement["classe"]= [str(round_decimals_down(element, 1))+" - "+str(round_decimals_up(element, 1)) for element in df_departement["proportion_de_logements_raccordables"]]
