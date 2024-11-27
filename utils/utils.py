@@ -1,39 +1,21 @@
 import pandas as pd
 import unidecode
-from pathlib import Path
 import math
 import os
 import re
-import sys
+import requests
 
-DATA_PATH= os.path.join("data","deploiement_file")
-FILE= os.listdir(DATA_PATH)[0]
-FILE_PATH= os.path.join(DATA_PATH,FILE)
+def setup_global_variables(): # Could be improved
 
-LAST_YEAR= FILE[:4]
-LAST_QUARTER= FILE[4:6]
-LAST_PERIOD= LAST_QUARTER+' '+LAST_YEAR
+    global DATA_PATH, FILE, FILE_PATH, LAST_YEAR, LAST_QUARTER, LAST_PERIOD
 
-def generate_periods():
-    periods = ['T4 2017']
-    
-    current_year = 2017
-    current_quarter = 4
-    
-    last_quarter, last_year = LAST_PERIOD.split()
-    last_quarter = int(last_quarter[1])
-    last_year = int(last_year)
-    
-    while (current_year < last_year) or (current_year == last_year and current_quarter < last_quarter):
-        current_quarter += 1
-        
-        if current_quarter > 4:
-            current_quarter = 1
-            current_year += 1
-        
-        periods.append(f'T{current_quarter} {current_year}')
-    
-    return periods
+    DATA_PATH= os.path.join("data","deploiement_file")
+    FILE= os.listdir(DATA_PATH)[0]
+    FILE_PATH= os.path.join(DATA_PATH,FILE)
+
+    LAST_YEAR= FILE[:4]
+    LAST_QUARTER= FILE[4:6]
+    LAST_PERIOD= LAST_QUARTER+' '+LAST_YEAR
 
 def round_decimals_down(number:float, decimals:int=2):
     """
@@ -106,6 +88,28 @@ def to_long(df, vars):
 
     return df
 
+def generate_periods():
+
+    periods = ['T4 2017']
+    
+    current_year = 2017
+    current_quarter = 4
+    
+    last_quarter, last_year = LAST_PERIOD.split()
+    last_quarter = int(last_quarter[1])
+    last_year = int(last_year)
+    
+    while (current_year < last_year) or (current_year == last_year and current_quarter < last_quarter):
+        current_quarter += 1
+        
+        if current_quarter > 4:
+            current_quarter = 1
+            current_year += 1
+        
+        periods.append(f'T{current_quarter} {current_year}')
+    
+    return periods
+
 def nettoyage(zone):
     """
     Nettoie une dataframe en appelant les fonctions précédemment créées.
@@ -154,7 +158,7 @@ def process_data():
     df_departement= df_departement.sort_values(by=['classe'])
     tri_an= generate_periods()
     key= [i for i in range(len(tri_an))]
-    d= dict(zip(key, tri_an)) # For slider
+    slider_dict= dict(zip(key, tri_an)) # For slider
 
     periode= ["T"+ str(df_region["trimestre"].iloc[index])+" "+str(df_region["annee"].iloc[index]) for index in df_region.index]# On récupère la période avec de l'algorithmique
     df_region["periode"]= periode
@@ -164,8 +168,23 @@ def process_data():
     df_commune= df_commune[df_commune["annee"]==int(LAST_YEAR)]
     df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
     
-    return df_departement, df_region, df_commune, d
+    return df_departement, df_region, df_commune, slider_dict
 
 def period_to_str():
 
     return f'{LAST_QUARTER[-1]}ème trimestre de {LAST_YEAR}'
+
+def download_from_url(url: str, input_dir: str, output_name: str):
+
+    if not os.path.exists(input_dir):
+        os.makedirs(input_dir)
+
+    file_path = os.path.join(input_dir, output_name)
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+    else:
+        print(f"Échec du téléchargement du fichier {output_name}. Statut: {response.status_code}")

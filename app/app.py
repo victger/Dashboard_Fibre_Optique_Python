@@ -11,7 +11,7 @@ def launch_app(df_region, df_departement, df_commune, d):
     create_map(df_commune)
 
     # Définition de la mise en page en passant les DataFrames nécessaires
-    app.layout = create_layout(df_region, df_commune, d)
+    app.layout = create_layout(df_region, d)
 
     # Enregistrement des callbacks en passant les DataFrames
     register_callbacks(app, df_departement, d)

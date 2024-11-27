@@ -1,10 +1,9 @@
 from driver.driver import driver, wait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import requests
-import os
+from utils.utils import download_from_url, setup_global_variables
 
-def download_file():
+def download_deploiement():
 
     URL= "https://www.data.gouv.fr/fr/datasets/le-marche-du-haut-et-tres-haut-debit-fixe-deploiements/"
     driver.get(URL)
@@ -25,34 +24,16 @@ def download_file():
     deploiement_url= deploiement_download_button.get_attribute('href')
     driver.quit()
 
-    DIRECTORY = "data/deploiement_file"
+    download_from_url(url= deploiement_url, input_dir='data/deploiement_file', output_name=deploiement_file_name)
 
-    if not os.path.exists(DIRECTORY):
-        os.makedirs(DIRECTORY)
-
-    file_path = os.path.join(DIRECTORY, deploiement_file_name)
-
-    response = requests.get(deploiement_url)
-
-    if response.status_code == 200:
-        with open(file_path, "wb") as file:
-            file.write(response.content)
-    else:
-        print(f"Échec du téléchargement du fichier Excel de déploiement. Statut: {response.status_code}")
+def download_communes_data():
 
     communes_data_url= "https://perso.esiee.fr/~courivad/python_advanced/_downloads/8578d763bdb7d7d0d1a7aaeb2e3b4814/datagouv-communes.geojson"
 
-    DIRECTORY = "data/communes_data"
+    download_from_url(url= communes_data_url, input_dir='data/communes_data', output_name='datagouv_communes.geojson')
 
-    if not os.path.exists(DIRECTORY):
-        os.makedirs(DIRECTORY)
+def download_files():
 
-    file_path = os.path.join(DIRECTORY, 'datagouv_communes.geojson')
-
-    response = requests.get(communes_data_url)
-
-    if response.status_code == 200:
-        with open(file_path, "wb") as file:
-            file.write(response.content)
-    else:
-        print(f"Échec du téléchargement du fichier GeoJSON des communes. Statut: {response.status_code}")
+    download_deploiement()
+    download_communes_data()
+    setup_global_variables() # Could be improved. no real need to have global variables
