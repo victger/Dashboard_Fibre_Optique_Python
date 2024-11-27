@@ -63,7 +63,7 @@ def round_decimals_up(number:float, decimals:int=2):
     factor = 10 ** decimals
     return math.ceil(number * factor) / factor
 
-def normalise(df):
+def normalize_columns(df):
     """
     Normalise les noms des colonnes de la dataframe
 
@@ -115,7 +115,7 @@ def nettoyage(zone):
 
     """
     df = pd.read_excel(FILE_PATH, sheet_name=zone, skiprows=4)
-    df= normalise(df)
+    df= normalize_columns(df)
     
     tab_col= ['nombre_locaux_ipe_'+LAST_QUARTER.lower()+'_'+LAST_YEAR+'_(somme_tous_oi)', 'code_region', 'logements', 'etablissements'] # Colonnes inutiles
     vars= ['nom_'+unidecode.unidecode(zone).lower()[:-1], 'meilleure_estimation_des_locaux_'+LAST_QUARTER.lower()+'_'+LAST_YEAR] #Colonnes faisant pivot à la transformation en wide to long
@@ -154,7 +154,7 @@ def process_data():
     df_departement= df_departement.sort_values(by=['classe'])
     tri_an= generate_periods()
     key= [i for i in range(len(tri_an))]
-    d= dict(zip(key, tri_an)) # Sert au slider
+    d= dict(zip(key, tri_an)) # For slider
 
     periode= ["T"+ str(df_region["trimestre"].iloc[index])+" "+str(df_region["annee"].iloc[index]) for index in df_region.index]# On récupère la période avec de l'algorithmique
     df_region["periode"]= periode
@@ -165,3 +165,7 @@ def process_data():
     df_commune["proportion_de_logements_raccordables_dans_la_commune"]= df_commune["nombre_de_logements_raccordables"]/df_commune["meilleure_estimation_des_locaux_"+LAST_QUARTER.lower()+'_'+LAST_YEAR]
     
     return df_departement, df_region, df_commune, d
+
+def period_to_str():
+
+    return f'{LAST_QUARTER[-1]}ème trimestre de {LAST_YEAR}'

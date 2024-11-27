@@ -9,7 +9,6 @@ def download_file():
     URL= "https://www.data.gouv.fr/fr/datasets/le-marche-du-haut-et-tres-haut-debit-fixe-deploiements/"
     driver.get(URL)
 
-    # Attendre la présence des fichiers téléchargeables
     downloadable_files = wait.until(EC.presence_of_all_elements_located(
         (By.XPATH, "//div[contains(@data-v-ebceacca,'') and contains(@data-v-9b5f7714, '') and starts-with(@id, 'resource') and contains(@class,'border border-default-grey')]")
     ))
