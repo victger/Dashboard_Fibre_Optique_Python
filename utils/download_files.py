@@ -33,7 +33,7 @@ def download_communes_data():
     download_from_url(url= communes_data_url, input_dir='data/communes_data', output_name='datagouv_communes.geojson')
 
 def download_files():
-
+    
     download_deploiement()
     download_communes_data()
     setup_global_variables() # Could be improved. no real need to have global variables

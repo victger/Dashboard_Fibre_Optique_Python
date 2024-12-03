@@ -6,4 +6,8 @@ download_files()
 
 df_departement, df_region, df_commune, slider_dict = process_data()
 
+print(df_departement)
+print(df_region)
+print(df_commune)
+
 launch_app(df_region, df_departement, df_commune, slider_dict)

@@ -16,4 +16,4 @@ def launch_app(df_region, df_departement, df_commune, d):
     # Enregistrement des callbacks en passant les DataFrames
     register_callbacks(app, df_departement, d)
     
-    app.run_server()
+    app.run_server(host="0.0.0.0", port=8050)
