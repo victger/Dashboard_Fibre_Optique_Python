@@ -2,7 +2,7 @@
 
 This project is a web application built using Python, Dash, and Selenium to visualize fiber access data across regions, departments, and municipalities in Metropolitan France. It scrapes and processes data, generates interactive maps and charts, and allows users to explore data via a dashboard.
 
-Thanks to the automated download of the latest documents, users can access up-to-date information on fiber coverage across Metropolitan France. The data is sourced and regularly updated from the official government database site, data-gouv.fr.
+Thanks to the automated download of the latest documents, users can access up-to-date information on fiber coverage across Metropolitan France. The data is sourced and regularly updated from the official government database site, data.gouv.fr.
 
 ## Table of Contents
 
