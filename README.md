@@ -100,7 +100,7 @@ fiber-access-dashboard/
 │   ├── callbacks.py     # Contains Dash callbacks for interactivity
 │   ├── graphs.py        # Helper functions to create graphs
 │   ├── map.py           # Creates the map to be displayed in the application
-|
+│
 ├── driver/
 │   ├── driver.py        # Instantiates the driver to download latest files
 │
