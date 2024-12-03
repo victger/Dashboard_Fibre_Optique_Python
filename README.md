@@ -65,7 +65,7 @@ This project combines data scraping with Selenium, data processing with Pandas, 
    python main.py
    ```
 
-   The app will run locally at `http://127.0.0.1:8050`.
+   The app will run locally at `http://127.0.0.1:8050` within minutes.
 
 ### Docker Setup
 
