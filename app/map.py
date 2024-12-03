@@ -1,5 +1,4 @@
 import folium
-import pandas as pd
 import os
 
 def create_map(df_commune):
